@@ -134,6 +134,15 @@
     margin-left:auto; background:none; border:none; color:#A38A5F; font-size:0.72rem; cursor:pointer;
     text-decoration:underline;
   }
+  .ticket-link{
+    margin-top:0.7rem; padding-top:0.7rem; border-top:1px solid rgba(18,36,31,0.1);
+  }
+  .link-btn{
+    background:var(--ink); color:#E3B94F; border:1px solid rgba(18,36,31,0.2); border-radius:6px;
+    padding:0.4rem 0.75rem; font-size:0.8rem; cursor:pointer; text-decoration:none; display:inline-flex;
+    align-items:center; gap:0.3rem; font-family:inherit;
+  }
+  .link-btn:hover{background:rgba(18,36,31,0.8);}
   @media (prefers-reduced-motion: reduce){ *{transition:none !important; animation:none !important;} }
 
   /* ---- Gate screens (password + profile picker) ---- */
@@ -274,6 +283,7 @@
       <input class="fraunces" id="f-emoji" type="text" maxlength="2" value="🎁" />
       <input id="f-name" type="text" placeholder="Wat wil je kopen?" />
       <input id="f-target" type="number" inputmode="decimal" placeholder="Bedrag" min="0" step="0.01" />
+      <input id="f-link" type="url" placeholder="Link (optioneel)" />
       <button class="btn-add" type="submit">
         <span>+</span> Voeg toe
       </button>
@@ -515,9 +525,9 @@ function loadItems(profile){
   }catch(e){}
   if(profile === "ewowo"){
     return [
-      {id:uid(), name:"Nintendo Switch 2", target:449, saved:120, emoji:"🎮"},
-      {id:uid(), name:"Weekendje Parijs", target:350, saved:350, emoji:"🥐"},
-      {id:uid(), name:"Nieuwe fiets", target:700, saved:60, emoji:"🚲"},
+      {id:uid(), name:"Nintendo Switch 2", target:449, saved:120, emoji:"🎮", link:""},
+      {id:uid(), name:"Weekendje Parijs", target:350, saved:350, emoji:"🥐", link:""},
+      {id:uid(), name:"Nieuwe fiets", target:700, saved:60, emoji:"🚲", link:""},
     ];
   }
   return [];
@@ -604,6 +614,18 @@ function render(){
 
     const card = document.createElement("div");
     card.className = "ticket";
+    
+    let linkHtml = "";
+    if(it.link && it.link.trim()){
+      linkHtml = `
+        <div class="ticket-link">
+          <a class="link-btn" href="${escapeHtml(it.link)}" target="_blank" rel="noopener">
+            🔗 Bekijk
+          </a>
+        </div>
+      `;
+    }
+    
     card.innerHTML = `
       <div class="ticket-top">
         <div class="ticket-left">
@@ -627,6 +649,7 @@ function render(){
         <button class="coin-add" data-action="add-custom" data-id="${it.id}">🪙</button>
         ${it.saved>0 ? `<button class="remove-link" data-action="remove" data-id="${it.id}" data-amt="5">−€5</button>` : ""}
       </div>
+      ${linkHtml}
     `;
     container.appendChild(card);
   });
@@ -657,17 +680,19 @@ document.getElementById("add-form").addEventListener("submit", (e)=>{
   const nameEl = document.getElementById("f-name");
   const targetEl = document.getElementById("f-target");
   const emojiEl = document.getElementById("f-emoji");
+  const linkEl = document.getElementById("f-link");
   const errorEl = document.getElementById("error-msg");
 
   const name = nameEl.value.trim();
   const target = parseFloat(targetEl.value.replace(",", "."));
+  const link = linkEl.value.trim();
 
   if(!name){ errorEl.textContent = "Geef je wens een naam."; return; }
   if(!target || target <= 0){ errorEl.textContent = "Vul een geldig bedrag in."; return; }
 
   errorEl.textContent = "";
-  items.push({id:uid(), name, target, saved:0, emoji: emojiEl.value || "🎁"});
-  nameEl.value = ""; targetEl.value = ""; emojiEl.value = "🎁";
+  items.push({id:uid(), name, target, saved:0, emoji: emojiEl.value || "🎁", link});
+  nameEl.value = ""; targetEl.value = ""; emojiEl.value = "🎁"; linkEl.value = "";
   persist(); render();
 });
 
