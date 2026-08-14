@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
+<title>Spaarlijst</title>
+<meta name="theme-color" content="#12241F" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Spaarlijst" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%2312241F'/%3E%3Ctext x='50' y='68' font-size='60' text-anchor='middle'%3E%F0%9F%90%B7%3C/text%3E%3C/svg%3E" />
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23C7972A'/%3E%3Ctext x='50' y='68' font-size='60' text-anchor='middle'%3E%F0%9F%90%B7%3C/text%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,500&family=Work+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#12241F; --paper:#EFE7D2; --gold:#C7972A; --gold-light:#E3B94F;
+    --text:#1C2A22; --muted:#6B6252; --panel:#18332D; --danger:#E4785A;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; min-height:100vh; font-family:'Work Sans',sans-serif; color:var(--text);
+    background:
+      radial-gradient(circle at 15% 10%, rgba(199,151,42,0.10), transparent 45%),
+      radial-gradient(circle at 85% 90%, rgba(199,151,42,0.08), transparent 45%),
+      var(--ink);
+    padding-bottom:4rem;
+  }
+  .fraunces{font-family:'Fraunces',serif;}
+  .mono{font-family:'IBM Plex Mono',monospace;}
+  .wrap{max-width:780px; margin:0 auto; padding:0 1.25rem;}
+  header{padding:3rem 1.25rem 1.5rem; max-width:780px; margin:0 auto;}
+  .brand{display:flex; align-items:center; gap:0.75rem; justify-content:space-between;}
+  .brand-left{display:flex; align-items:center; gap:0.75rem;}
+  .brand-icon{
+    width:44px;height:44px;border-radius:10px;background:var(--gold);
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1.3rem;
+  }
+  h1{color:#F5EFDD; font-size:1.9rem; font-weight:700; line-height:1.1; margin:0;}
+  .tagline{color:#8FA396; font-size:0.85rem; margin:2px 0 0;}
+  .profile-switch{
+    background:none; border:1px solid rgba(199,151,42,0.35); color:#E3B94F; border-radius:999px;
+    padding:0.4rem 0.8rem; font-size:0.78rem; font-family:'IBM Plex Mono',monospace; cursor:pointer;
+    display:flex; align-items:center; gap:0.4rem; white-space:nowrap;
+  }
+  
+  /* Budget section */
+  .budget-section{
+    margin-top:1.75rem; background:var(--panel); border:1px solid rgba(199,151,42,0.25);
+    border-radius:12px; padding:1.1rem 1.3rem;
+  }
+  .budget-row{
+    display:flex; justify-content:space-between; align-items:center; gap:1rem; margin-bottom:0.8rem; flex-wrap:wrap;
+  }
+  .budget-row:last-child{margin-bottom:0;}
+  .budget-label{color:#8FA396; font-size:0.9rem; min-width:120px;}
+  .budget-input-wrapper{display:flex; align-items:center; gap:0.3rem;}
+  .budget-input{
+    background:var(--ink); border:1px solid rgba(255,255,255,0.12); border-radius:8px;
+    padding:0.45rem 0.6rem; color:#F5EFDD; font-size:0.9rem; width:120px; font-family:inherit;
+  }
+  .budget-value{color:var(--gold-light); font-size:1.1rem; font-weight:600; min-width:80px; text-align:right;}
+  
+  .totals{
+    margin-top:1.75rem; background:var(--panel); border:1px solid rgba(199,151,42,0.25);
+    border-radius:12px; padding:1.1rem 1.3rem;
+  }
+  .totals-row{display:flex; justify-content:space-between; align-items:baseline; flex-wrap:wrap; gap:0.5rem;}
+  .totals-saved{color:var(--gold-light); font-size:1.6rem; font-weight:600;}
+  .totals-target{color:#8FA396; font-size:0.95rem;}
+  .bar-outer{margin-top:0.7rem; height:8px; background:rgba(255,255,255,0.08); border-radius:999px; overflow:hidden;}
+  .bar-inner{height:100%; background:linear-gradient(90deg,var(--gold),var(--gold-light)); border-radius:999px; transition:width .4s ease;}
+  .totals-meta{margin-top:0.4rem; font-size:0.75rem; color:#6B8073; display:flex; justify-content:space-between;}
+  form.addform{
+    background:var(--panel); border:1px dashed rgba(199,151,42,0.35); border-radius:12px;
+    padding:1rem; display:flex; gap:0.6rem; flex-wrap:wrap; align-items:center;
+  }
+  .addform input{
+    background:var(--ink); border:1px solid rgba(255,255,255,0.12); border-radius:8px;
+    padding:0.55rem 0.75rem; color:#F5EFDD; font-size:0.95rem; font-family:inherit;
+  }
+  #f-emoji{width:44px; text-align:center; font-size:1.2rem; padding:0.5rem 0;}
+  #f-name{flex:1 1 180px;}
+  #f-target{width:120px;}
+  .btn-add{
+    background:var(--gold); color:var(--ink); border:none; border-radius:8px; padding:0.55rem 1rem;
+    font-weight:600; font-size:0.9rem; display:flex; align-items:center; gap:0.35rem; cursor:pointer;
+  }
+  .btn-add:active{transform:scale(0.97);}
+  .error-msg{color:var(--danger); font-size:0.8rem; margin-top:0.4rem; min-height:1.1em;}
+  .save-msg{color:#4E5F55; font-size:0.7rem; margin-top:0.35rem; min-height:1em;}
+  .items{margin-top:1.5rem; display:flex; flex-direction:column; gap:1rem; padding-bottom:2rem;}
+  .empty{text-align:center; color:#5F7268; padding:3rem 1rem;}
+  .empty .fraunces{font-size:1.1rem; color:#8FA396;}
+  .ticket{
+    position:relative; background:var(--paper); border-radius:4px; padding:1.15rem 1.2rem 1rem;
+    box-shadow:0 6px 18px rgba(0,0,0,0.25);
+  }
+  .ticket::before{
+    content:""; position:absolute; top:-1px; left:0; right:0; height:10px;
+    background-image:radial-gradient(circle at 6px 0px, var(--ink) 5px, transparent 5.5px);
+    background-size:16px 10px; background-repeat:repeat-x;
+  }
+  .ticket-top{display:flex; justify-content:space-between; align-items:flex-start; gap:0.75rem;}
+  .ticket-left{display:flex; gap:0.7rem; align-items:flex-start;}
+  .ticket-emoji{font-size:1.6rem; line-height:1;}
+  .ticket-title{margin:0; font-size:1.15rem; font-weight:600; color:var(--text);}
+  .ticket-sub{margin:2px 0 0; font-size:0.85rem; color:var(--muted);}
+  .ticket-sub .of{color:#A99A73;}
+  .ticket-right{display:flex; align-items:center; gap:0.4rem;}
+  .badge{
+    color:var(--ink); background:var(--gold); font-size:0.7rem; font-weight:700; padding:0.2rem 0.5rem;
+    border-radius:999px; transform:rotate(-4deg); display:inline-flex; align-items:center; gap:0.2rem;
+  }
+  .del-btn{background:none; border:none; cursor:pointer; color:#B08A5A; padding:4px; font-size:1rem;}
+  .bar-outer2{margin-top:0.7rem; height:7px; background:rgba(18,36,31,0.12); border-radius:999px; overflow:hidden;}
+  .bar-inner2{height:100%; border-radius:999px; transition:width .4s ease;}
+  .actions{margin-top:0.7rem; display:flex; flex-wrap:wrap; gap:0.4rem; align-items:center;}
+  .coin-btn{
+    background:var(--ink); color:var(--gold-light); border:1px solid rgba(18,36,31,0.2); border-radius:999px;
+    padding:0.3rem 0.65rem; font-size:0.78rem; font-family:'IBM Plex Mono',monospace; cursor:pointer;
+  }
+  .custom-input{
+    width:100px; background:var(--paper); border:1px solid rgba(18,36,31,0.2); border-radius:999px;
+    padding:0.3rem 0.6rem; font-size:0.78rem; color:var(--text); font-family:inherit;
+  }
+  .coin-add{
+    background:var(--ink); color:#F5EFDD; border:none; border-radius:999px; padding:0.3rem 0.6rem;
+    font-size:0.9rem; cursor:pointer;
+  }
+  .remove-link{
+    margin-left:auto; background:none; border:none; color:#A38A5F; font-size:0.72rem; cursor:pointer;
+    text-decoration:underline;
+  }
+  @media (prefers-reduced-motion: reduce){ *{transition:none !important; animation:none !important;} }
+
+  /* ---- Gate screens (password + profile picker) ---- */
+  .gate{
+    min-height:100vh; display:flex; align-items:center; justify-content:center; padding:1.5rem;
+  }
+  .gate-card{
+    width:100%; max-width:380px; background:var(--panel); border:1px solid rgba(199,151,42,0.25);
+    border-radius:16px; padding:2rem 1.75rem; text-align:center;
+  }
+  .gate-icon{
+    width:56px;height:56px;border-radius:14px;background:var(--gold);margin:0 auto 1rem;
+    display:flex;align-items:center;justify-content:center;font-size:1.6rem;
+  }
+  .gate-card h2{color:#F5EFDD; font-size:1.3rem; margin:0 0 0.3rem;}
+  .gate-card p.gate-sub{color:#8FA396; font-size:0.85rem; margin:0 0 1.5rem;}
+  .gate-input{
+    width:100%; background:var(--ink); border:1px solid rgba(255,255,255,0.14); border-radius:8px;
+    padding:0.75rem 0.9rem; color:#F5EFDD; font-size:1rem; font-family:'IBM Plex Mono',monospace;
+    text-align:center; letter-spacing:0.15em;
+  }
+  .gate-input:focus{outline:none; border-color:var(--gold);}
+  .gate-btn{
+    width:100%; margin-top:0.9rem; background:var(--gold); color:var(--ink); border:none; border-radius:8px;
+    padding:0.75rem; font-weight:600; font-size:0.95rem; cursor:pointer;
+  }
+  .gate-btn:active{transform:scale(0.98);}
+  .gate-error{color:var(--danger); font-size:0.8rem; margin-top:0.8rem; min-height:1.1em;}
+  .profile-list{display:flex; flex-direction:column; gap:0.6rem; margin-top:0.3rem;}
+  .profile-btn{
+    display:flex; align-items:center; gap:0.7rem; background:var(--ink); border:1px solid rgba(255,255,255,0.12);
+    border-radius:10px; padding:0.8rem 1rem; color:#F5EFDD; font-size:1rem; font-family:'Work Sans',sans-serif;
+    cursor:pointer; text-align:left;
+  }
+  .profile-btn:active{transform:scale(0.98);}
+  .profile-avatar{
+    width:34px;height:34px;border-radius:999px;background:var(--gold-light);color:var(--ink);
+    display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.95rem;flex-shrink:0;
+  }
+  .profile-name{flex:1; font-weight:500;}
+  .profile-arrow{color:#6B8073;}
+  .profile-new{
+    display:flex; align-items:center; justify-content:center; gap:0.5rem; background:none;
+    border:1px dashed rgba(199,151,42,0.4); border-radius:10px; padding:0.8rem 1rem;
+    color:var(--gold-light); font-size:0.95rem; cursor:pointer; margin-top:0.5rem;
+  }
+  .new-profile-form{display:flex; flex-direction:column; gap:0.6rem; margin-top:0.3rem;}
+  .hidden{display:none !important;}
+</style>
+</head>
+<body>
+
+<!-- ===== Wachtwoord scherm ===== -->
+<div class="gate" id="gate-password">
+  <div class="gate-card">
+    <div class="gate-icon">🔒</div>
+    <h2>Spaarlijst</h2>
+    <p class="gate-sub">Vul je wachtwoord in</p>
+    <input class="gate-input" id="password-input" type="password" placeholder="••••" />
+    <button class="gate-btn" id="password-btn">Doorgaan</button>
+    <div class="gate-error" id="password-error"></div>
+  </div>
+</div>
+
+<!-- ===== Profiel kiezer ===== -->
+<div class="gate hidden" id="gate-profiles">
+  <div class="gate-card">
+    <div class="gate-icon">👤</div>
+    <h2>Welke profiel?</h2>
+    <p class="gate-sub">Kies je profiel of maak een nieuw aan</p>
+    <div class="profile-list" id="profile-list"></div>
+    <button class="profile-new" id="show-new-profile">+ Nieuw profiel</button>
+    <div class="new-profile-form hidden" id="new-profile-form">
+      <input class="gate-input" id="new-profile-name" type="text" placeholder="Profielnaam" />
+      <button class="gate-btn" id="create-profile-btn">Maken</button>
+      <button class="gate-btn" style="background:#A99A73" id="cancel-profile-btn">Annuleren</button>
+    </div>
+    <div class="gate-error" id="profile-error"></div>
+  </div>
+</div>
+
+<!-- ===== Main app ===== -->
+<div id="app" class="hidden">
+  <header>
+    <div class="brand">
+      <div class="brand-left">
+        <div class="brand-icon">🐷</div>
+        <div>
+          <h1>Spaarlijst</h1>
+          <p class="tagline">Profiel: <span id="current-profile-label">—</span></p>
+        </div>
+      </div>
+      <button class="profile-switch" id="switch-profile-btn">Wisselen</button>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <!-- Budget section -->
+    <div class="budget-section">
+      <div class="budget-row">
+        <label class="budget-label">Beschikbaar deze maand:</label>
+        <div class="budget-input-wrapper">
+          <span>€</span>
+          <input class="budget-input" id="available-amount" type="number" inputmode="decimal" placeholder="0" min="0" step="0.01" />
+        </div>
+      </div>
+      <div class="budget-row">
+        <label class="budget-label">Noodzakelijke uitgaven:</label>
+        <div class="budget-input-wrapper">
+          <span>€</span>
+          <input class="budget-input" id="necessary-amount" type="number" inputmode="decimal" placeholder="0" min="0" step="0.01" />
+        </div>
+      </div>
+      <div style="border-top:1px solid rgba(255,255,255,0.1); padding-top:0.8rem; margin-top:0.8rem;">
+        <div class="budget-row">
+          <label class="budget-label">Beschikbaar voor sparen:</label>
+          <div class="budget-value" id="available-to-save">€0,00</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Totals section -->
+    <div class="totals">
+      <div class="totals-row">
+        <div>
+          <p class="totals-target" id="totals-target">van €0,00 totaal</p>
+          <div class="totals-row"><span class="totals-saved" id="totals-saved">€0,00</span> <span class="totals-target" id="item-count">gespaard</span></div>
+        </div>
+        <div style="text-align:right;">
+          <div class="bar-outer"><div class="bar-inner" id="overall-bar" style="width:0%"></div></div>
+          <p class="totals-meta"><span id="overall-pct">0% gespaard</span></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add form -->
+    <form class="addform" id="add-form">
+      <input class="fraunces" id="f-emoji" type="text" maxlength="2" value="🎁" />
+      <input id="f-name" type="text" placeholder="Wat wil je kopen?" />
+      <input id="f-target" type="number" inputmode="decimal" placeholder="Bedrag" min="0" step="0.01" />
+      <button class="btn-add" type="submit">
+        <span>+</span> Voeg toe
+      </button>
+      <div class="error-msg" id="error-msg"></div>
+      <div class="save-msg" id="save-msg"></div>
+    </form>
+
+    <!-- Items -->
+    <div class="items" id="items"></div>
+  </div>
+</div>
+
+<script>
+/* 
+  ========== SETUP INSTRUCTIES VOOR GITHUB GIST SYNC ==========
+  
+  1. Maak een GitHub Personal Access Token aan:
+     - Ga naar https://github.com/settings/tokens
+     - Klik "Generate new token"
+     - Geef het token naam "spaarlijst"
+     - Selecteer ALLEEN deze scopes: "gist"
+     - Klik "Generate token"
+     - Kopieer het token (je ziet het maar 1x!)
+  
+  2. Maak een Gist aan:
+     - Ga naar https://gist.github.com
+     - Maak een nieuwe Gist (kan privé zijn)
+     - Geef het bestand de naam: spaarlijst.json
+     - Vul als content in: {"profiles":["ewowo"],"items":{},"budgets":{}}
+     - Klik "Create public/secret gist"
+     - Kopieer de Gist ID uit de URL (na /gists/)
+       Bijvoorbeeld: https://gist.github.com/jouwusername/a1b2c3d4e5f6
+       ID = a1b2c3d4e5f6
+  
+  3. Vul hier je TOKEN en GIST_ID in:
+*/
+
+const AUTH_KEY = "spaarlijst_authenticated";
+const CURRENT_PROFILE_KEY = "spaarlijst_current_profile";
+const BUDGET_KEY_PREFIX = "spaarlijst_budget_";
+
+// GitHub Gist configuratie
+const GITHUB_TOKEN = ""; // Vul hier je GitHub Personal Access Token in
+const GIST_ID = ""; // Vul hier je Gist ID in (zonder https://gist.github.com/.../ prefix)
+const GIST_FILENAME = "spaarlijst.json";
+
+const localStore = typeof(Storage) !== "undefined" ? localStorage : {data:{}, getItem(k){return this.data[k]}, setItem(k,v){this.data[k]=v}};
+const sessionStore = typeof(Storage) !== "undefined" ? sessionStorage : localStore;
+
+let syncInProgress = false;
+let lastSyncTime = 0;
+
+const gatePassword = document.getElementById("gate-password");
+const gateProfiles = document.getElementById("gate-profiles");
+const appEl = document.getElementById("app");
+
+const PASSWORD = "1234"; // Change this to your desired password
+
+function itemsKeyFor(profile){
+  return `spaarlijst_items_${profile}`;
+}
+
+function budgetKeyFor(profile, type) {
+  return `${BUDGET_KEY_PREFIX}${profile}_${type}`;
+}
+
+function uid(){
+  return "_" + Math.random().toString(36).substr(2, 9);
+}
+
+function euro(n){
+  const num = Number(n) || 0;
+  return "€" + num.toLocaleString("nl-NL", {minimumFractionDigits: 2, maximumFractionDigits: 2});
+}
+
+function escapeHtml(text){
+  const map = {'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'};
+  return text.replace(/[&<>"']/g, m => map[m]);
+}
+
+/* ========== GitHub Gist Sync ========== */
+async function loadFromGist(){
+  if(!GITHUB_TOKEN || !GIST_ID) return null;
+  
+  try{
+    const response = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
+      headers: {
+        'Authorization': `token ${GITHUB_TOKEN}`,
+        'Accept': 'application/vnd.github.v3+json'
+      }
+    });
+    
+    if(!response.ok) return null;
+    const data = await response.json();
+    const file = data.files[GIST_FILENAME];
+    if(!file) return null;
+    
+    return JSON.parse(file.content);
+  }catch(e){
+    console.error("Gist load error:", e);
+    return null;
+  }
+}
+
+async function saveToGist(data){
+  if(!GITHUB_TOKEN || !GIST_ID) return false;
+  if(syncInProgress) return false;
+  
+  syncInProgress = true;
+  try{
+    const response = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
+      method: 'PATCH',
+      headers: {
+        'Authorization': `token ${GITHUB_TOKEN}`,
+        'Accept': 'application/vnd.github.v3+json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        files: {
+          [GIST_FILENAME]: {
+            content: JSON.stringify(data, null, 2)
+          }
+        }
+      })
+    });
+    
+    if(!response.ok) return false;
+    lastSyncTime = Date.now();
+    return true;
+  }catch(e){
+    console.error("Gist save error:", e);
+    return false;
+  }finally{
+    syncInProgress = false;
+  }
+}
+
+/* ========== Password gate ========== */
+document.getElementById("password-btn").addEventListener("click", ()=>{
+  const pass = document.getElementById("password-input").value;
+  const errorEl = document.getElementById("password-error");
+  if(pass === PASSWORD){
+    sessionStore.setItem(AUTH_KEY, "1");
+    errorEl.textContent = "";
+    gatePassword.classList.add("hidden");
+    showProfileGate();
+  } else {
+    errorEl.textContent = "Verkeerd wachtwoord";
+  }
+});
+
+document.getElementById("password-input").addEventListener("keypress", (e)=>{
+  if(e.key === "Enter") document.getElementById("password-btn").click();
+});
+
+/* ========== Profile gate ========== */
+function showProfileGate(){
+  gateProfiles.classList.remove("hidden");
+  renderProfileList();
+}
+
+function getProfiles(){
+  try{
+    const raw = localStore.getItem("spaarlijst_profiles");
+    if(raw) return JSON.parse(raw);
+  }catch(e){}
+  return ["ewowo"];
+}
+
+function saveProfiles(profiles){
+  localStore.setItem("spaarlijst_profiles", JSON.stringify(profiles));
+}
+
+function renderProfileList(){
+  const profiles = getProfiles();
+  const list = document.getElementById("profile-list");
+  list.innerHTML = "";
+  profiles.forEach(name => {
+    const btn = document.createElement("button");
+    btn.className = "profile-btn";
+    btn.type = "button";
+    btn.innerHTML = `
+      <div class="profile-avatar">${name.charAt(0).toUpperCase()}</div>
+      <div class="profile-name">${escapeHtml(name)}</div>
+      <div class="profile-arrow">→</div>
+    `;
+    btn.addEventListener("click", ()=> selectProfile(name));
+    list.appendChild(btn);
+  });
+}
+
+document.getElementById("show-new-profile").addEventListener("click", ()=>{
+  document.getElementById("show-new-profile").classList.add("hidden");
+  document.getElementById("new-profile-form").classList.remove("hidden");
+  document.getElementById("new-profile-name").focus();
+});
+
+document.getElementById("cancel-profile-btn").addEventListener("click", ()=>{
+  document.getElementById("new-profile-form").classList.add("hidden");
+  document.getElementById("new-profile-name").value = "";
+  document.getElementById("show-new-profile").classList.remove("hidden");
+});
+
+document.getElementById("create-profile-btn").addEventListener("click", ()=>{
+  const name = document.getElementById("new-profile-name").value.trim();
+  const errorEl = document.getElementById("profile-error");
+  if(!name){ errorEl.textContent = "Geef je profiel een naam."; return; }
+  const profiles = getProfiles();
+  if(profiles.includes(name)){ errorEl.textContent = "Dit profiel bestaat al."; return; }
+  profiles.push(name);
+  saveProfiles(profiles);
+  document.getElementById("new-profile-form").classList.add("hidden");
+  document.getElementById("new-profile-name").value = "";
+  document.getElementById("show-new-profile").classList.remove("hidden");
+  renderProfileList();
+  gateProfiles.classList.remove("hidden");
+});
+
+async function selectProfile(name){
+  localStore.setItem(CURRENT_PROFILE_KEY, name);
+  gateProfiles.classList.add("hidden");
+  await startApp(name);
+}
+
+document.getElementById("switch-profile-btn").addEventListener("click", ()=>{
+  appEl.classList.add("hidden");
+  showProfileGate();
+});
+
+/* ============ App ============ */
+let items = [];
+let currentProfile = "";
+let saveTimer = null;
+
+function loadItems(profile){
+  try{
+    const raw = localStore.getItem(itemsKeyFor(profile));
+    if(raw) return JSON.parse(raw);
+  }catch(e){}
+  if(profile === "ewowo"){
+    return [
+      {id:uid(), name:"Nintendo Switch 2", target:449, saved:120, emoji:"🎮"},
+      {id:uid(), name:"Weekendje Parijs", target:350, saved:350, emoji:"🥐"},
+      {id:uid(), name:"Nieuwe fiets", target:700, saved:60, emoji:"🚲"},
+    ];
+  }
+  return [];
+}
+
+function loadBudget(profile, type) {
+  try {
+    const raw = localStore.getItem(budgetKeyFor(profile, type));
+    if (raw) return parseFloat(raw) || 0;
+  } catch (e) {}
+  return 0;
+}
+
+function saveBudget(profile, type, value) {
+  localStore.setItem(budgetKeyFor(profile, type), value.toString());
+  persist();
+}
+
+function persist(){
+  const el = document.getElementById("save-msg");
+  el.textContent = "opslaan…";
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(async ()=>{
+    try{
+      localStore.setItem(itemsKeyFor(currentProfile), JSON.stringify(items));
+      
+      // Sync to Gist
+      if(GITHUB_TOKEN && GIST_ID){
+        const allData = {
+          profiles: getProfiles(),
+          items: {},
+          budgets: {}
+        };
+        
+        // Verzamel alle profielen data
+        const profiles = getProfiles();
+        for(let profile of profiles){
+          const profileItems = JSON.parse(localStore.getItem(itemsKeyFor(profile)) || '[]');
+          const available = localStore.getItem(budgetKeyFor(profile, 'available')) || '0';
+          const necessary = localStore.getItem(budgetKeyFor(profile, 'necessary')) || '0';
+          
+          allData.items[profile] = profileItems;
+          allData.budgets[profile] = {
+            available: parseFloat(available),
+            necessary: parseFloat(necessary)
+          };
+        }
+        
+        await saveToGist(allData);
+      }
+      
+      el.textContent = "opgeslagen ✓";
+    }catch(e){
+      el.textContent = "kon niet opslaan";
+    }
+  }, 200);
+}
+
+function render(){
+  const totalSaved = items.reduce((a,it)=>a+(Number(it.saved)||0),0);
+  const totalTarget = items.reduce((a,it)=>a+(Number(it.target)||0),0);
+  const overallPct = totalTarget>0 ? Math.min(100,(totalSaved/totalTarget)*100) : 0;
+
+  document.getElementById("totals-saved").textContent = euro(totalSaved);
+  document.getElementById("totals-target").textContent = "van " + euro(totalTarget) + " totaal";
+  document.getElementById("overall-bar").style.width = overallPct + "%";
+  document.getElementById("item-count").textContent = items.length + (items.length===1 ? " wens" : " wensen");
+  document.getElementById("overall-pct").textContent = overallPct.toFixed(0) + "% gespaard";
+
+  const container = document.getElementById("items");
+  container.innerHTML = "";
+
+  if(items.length === 0){
+    container.innerHTML = `<div class="empty">
+      <p class="fraunces">Nog niets op je lijstje.</p>
+      <p>Voeg hierboven je eerste wens toe.</p>
+    </div>`;
+    return;
+  }
+
+  items.forEach(it=>{
+    const pct = it.target>0 ? Math.min(100,(it.saved/it.target)*100) : 0;
+    const done = it.saved >= it.target;
+
+    const card = document.createElement("div");
+    card.className = "ticket";
+    card.innerHTML = `
+      <div class="ticket-top">
+        <div class="ticket-left">
+          <span class="ticket-emoji">${it.emoji}</span>
+          <div>
+            <h3 class="fraunces ticket-title">${escapeHtml(it.name)}</h3>
+            <p class="mono ticket-sub">${euro(it.saved)} <span class="of">/ ${euro(it.target)}</span></p>
+          </div>
+        </div>
+        <div class="ticket-right">
+          ${done ? `<span class="badge fraunces">✓ bereikt</span>` : ""}
+          <button class="del-btn" data-action="delete" data-id="${it.id}" aria-label="Verwijder ${escapeHtml(it.name)}">🗑</button>
+        </div>
+      </div>
+      <div class="bar-outer2"><div class="bar-inner2" style="width:${pct}%; background:${done ? '#4F8F6B' : 'linear-gradient(90deg,#C7972A,#E3B94F)'}"></div></div>
+      <div class="actions">
+        <button class="coin-btn" data-action="add" data-id="${it.id}" data-amt="5">+€5</button>
+        <button class="coin-btn" data-action="add" data-id="${it.id}" data-amt="10">+€10</button>
+        <button class="coin-btn" data-action="add" data-id="${it.id}" data-amt="25">+€25</button>
+        <input class="custom-input" type="text" inputmode="decimal" placeholder="eigen bedrag" data-custom="${it.id}" />
+        <button class="coin-add" data-action="add-custom" data-id="${it.id}">🪙</button>
+        ${it.saved>0 ? `<button class="remove-link" data-action="remove" data-id="${it.id}" data-amt="5">−€5</button>` : ""}
+      </div>
+    `;
+    container.appendChild(card);
+  });
+}
+
+// Budget input handlers
+document.getElementById("available-amount").addEventListener("change", (e)=>{
+  const val = parseFloat(e.target.value) || 0;
+  saveBudget(currentProfile, "available", val);
+  updateBudgetDisplay();
+});
+
+document.getElementById("necessary-amount").addEventListener("change", (e)=>{
+  const val = parseFloat(e.target.value) || 0;
+  saveBudget(currentProfile, "necessary", val);
+  updateBudgetDisplay();
+});
+
+function updateBudgetDisplay() {
+  const available = parseFloat(document.getElementById("available-amount").value) || 0;
+  const necessary = parseFloat(document.getElementById("necessary-amount").value) || 0;
+  const availableToSave = Math.max(0, available - necessary);
+  document.getElementById("available-to-save").textContent = euro(availableToSave);
+}
+
+document.getElementById("add-form").addEventListener("submit", (e)=>{
+  e.preventDefault();
+  const nameEl = document.getElementById("f-name");
+  const targetEl = document.getElementById("f-target");
+  const emojiEl = document.getElementById("f-emoji");
+  const errorEl = document.getElementById("error-msg");
+
+  const name = nameEl.value.trim();
+  const target = parseFloat(targetEl.value.replace(",", "."));
+
+  if(!name){ errorEl.textContent = "Geef je wens een naam."; return; }
+  if(!target || target <= 0){ errorEl.textContent = "Vul een geldig bedrag in."; return; }
+
+  errorEl.textContent = "";
+  items.push({id:uid(), name, target, saved:0, emoji: emojiEl.value || "🎁"});
+  nameEl.value = ""; targetEl.value = ""; emojiEl.value = "🎁";
+  persist(); render();
+});
+
+document.getElementById("items").addEventListener("click",(e)=>{
+  const btn = e.target.closest("button");
+  if(!btn) return;
+  const action = btn.dataset.action;
+  const id = btn.dataset.id;
+  if(!action || !id) return;
+
+  const item = items.find(it=>it.id===id);
+  if(!item) return;
+
+  if(action === "add"){
+    const amt = parseFloat(btn.dataset.amt);
+    item.saved = Math.max(0, Number(item.saved) + amt);
+  } else if(action === "remove"){
+    const amt = parseFloat(btn.dataset.amt);
+    item.saved = Math.max(0, Number(item.saved) - amt);
+  } else if(action === "add-custom"){
+    const input = document.querySelector(`[data-custom="${id}"]`);
+    const v = parseFloat(String(input.value).replace(",", "."));
+    if(v > 0){
+      item.saved = Math.max(0, Number(item.saved) + v);
+      input.value = "";
+    }
+  } else if(action === "delete"){
+    items = items.filter(it=>it.id!==id);
+  }
+
+  persist(); render();
+});
+
+async function startApp(profile){
+  currentProfile = profile;
+  
+  // Probeer eerst van Gist te laden
+  if(GITHUB_TOKEN && GIST_ID){
+    const gistData = await loadFromGist();
+    if(gistData && gistData.items && gistData.budgets){
+      // Laad alle profielen en data van Gist
+      for(let prof in gistData.items){
+        localStore.setItem(itemsKeyFor(prof), JSON.stringify(gistData.items[prof] || []));
+      }
+      for(let prof in gistData.budgets){
+        const budget = gistData.budgets[prof];
+        if(budget.available) localStore.setItem(budgetKeyFor(prof, 'available'), budget.available.toString());
+        if(budget.necessary) localStore.setItem(budgetKeyFor(prof, 'necessary'), budget.necessary.toString());
+      }
+    }
+  }
+  
+  items = loadItems(profile);
+  
+  // Load budget values
+  const availableBudget = loadBudget(profile, "available");
+  const necessaryBudget = loadBudget(profile, "necessary");
+  
+  document.getElementById("current-profile-label").textContent = profile;
+  document.getElementById("available-amount").value = availableBudget || "";
+  document.getElementById("necessary-amount").value = necessaryBudget || "";
+  
+  updateBudgetDisplay();
+  appEl.classList.remove("hidden");
+  render();
+}
+
+/* ============ Boot ============ */
+(async function boot(){
+  // Laad Gist data direct bij startup
+  if(GITHUB_TOKEN && GIST_ID){
+    const gistData = await loadFromGist();
+    if(gistData){
+      // Update locale storage met Gist data
+      for(let prof in gistData.items){
+        localStore.setItem(itemsKeyFor(prof), JSON.stringify(gistData.items[prof] || []));
+      }
+      for(let prof in gistData.budgets){
+        const budget = gistData.budgets[prof];
+        if(budget.available) localStore.setItem(budgetKeyFor(prof, 'available'), budget.available.toString());
+        if(budget.necessary) localStore.setItem(budgetKeyFor(prof, 'necessary'), budget.necessary.toString());
+      }
+    }
+  }
+  
+  if(sessionStore.getItem(AUTH_KEY) === "1"){
+    gatePassword.classList.add("hidden");
+    showProfileGate();
+  }
+})();
+</script>
+</body>
+</html>
